@@ -24,17 +24,17 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 	private Paddle paddle;
 	private int paddleWidth;
 	private int paddleHeight;
+	private int paddleSpeed;
 	private int paddleX;
 	private int paddleY;
-	private int paddleSpeed;
 	
 	//ball variables
 	private Ball ball;
 	private int ballRadius;
 	private int ballDiameter;
+	private int ballSpeed;
 	private int x, y;
 	//private int diffX, diffY;
-	private int ballSpeed;
 	private boolean right;
 	private boolean up;
 	private boolean stickToPaddle;
@@ -45,13 +45,25 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 	private int brickWidth;
 	
 	//GamePanel constructor
-	public GamePanel(int width, int height, JLabel sl)
+	public GamePanel(JLabel sl)
 	{
-		//game
 		this.setBackground(Color.WHITE);
-		panelWidth = width;
-		panelHeight = height;
 		scoreLabel = sl;
+		
+		//add listeners
+		addKeyListener(this);
+		addMouseListener(this);
+		timer = new Timer(DELAY, this);
+		setFocusable(true);
+	}
+	
+	public void startGame(){
+		
+		//game
+		panelWidth = this.getWidth();
+		panelHeight = this.getHeight();
+		System.out.println("Width: " + panelWidth);
+		System.out.println("Height: " + panelHeight);
 		pause = false;
 		pressed = false;
 		
@@ -98,13 +110,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 //		diffX = 0;
 //		diffY = 0;
 		
-		//init
-		addKeyListener(this);
-		addMouseListener(this);
-		timer = new Timer(DELAY, this);
-		setFocusable(true);
-		//panelWidth = this.getBounds().width;
-		//System.out.println(panelWidth);
 		repaint();
 		timer.start();
 	}
@@ -191,7 +196,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 	 ******************************************************************************/
 	@Override
 	public void actionPerformed (ActionEvent event) {
-		
 		if (pressed){
 			switch(keyCode)
 			{
@@ -243,7 +247,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 		
 		//brick collision logic
 		//bottom of brick
-		
 		for (int i = 0; i < bricks.size(); i++)
 		{
 			int brickX = (int) bricks.get(i).getPos().getX();
@@ -253,6 +256,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 					up = false;
 					bricks.remove(i);
 					score++;
+					scoreLabel.setText("Score: " + score);
 				}
 			}
 		}
@@ -331,8 +335,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 				right = true;
 			}
 		}
-		
-		scoreLabel.setText("Score: " + score);
 		
 		repaint();
 		
