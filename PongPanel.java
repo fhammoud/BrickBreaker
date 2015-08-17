@@ -6,19 +6,18 @@ import javax.swing.JPanel;
 @SuppressWarnings("serial")
 public class PongPanel extends JPanel{
 	
-	private JLabel scoreLabel;
 	private GamePanel gamePanel;
 	
+	public PongPanel(){
+		JLabel scoreLabel = new JLabel("Score: 0");
+		gamePanel = new GamePanel(scoreLabel);
+		
+		this.setLayout(new BorderLayout());
+		this.add(scoreLabel, BorderLayout.NORTH);
+		this.add(gamePanel, BorderLayout.CENTER);
+	}
 	
-	public PongPanel(int width, int height){
-		
-		//instantiate variables
-		scoreLabel = new JLabel();
-		gamePanel = new GamePanel(width, height, scoreLabel);
-		
-		//set layout and add elements to panel
-		setLayout(new BorderLayout());
-		add(scoreLabel, BorderLayout.NORTH);
-		add(gamePanel, BorderLayout.CENTER);
+	public GamePanel getGamePanel(){
+		return gamePanel;
 	}
 }
