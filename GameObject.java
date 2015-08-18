@@ -43,5 +43,14 @@ public abstract class GameObject {
 		this.y = y;
 	}
 	
+	public boolean overlap(GameObject other){
+		boolean isOverlap = false;
+		
+		Point topLeft = other.getPos();
+		Point bottomRight = new Point((int)topLeft.getX() + other.getWidth(), (int)topLeft.getY() + other.getHeight());
+		
+		return isOverlap;
+	}
+	
 	public abstract void paint(Graphics page);
 }
