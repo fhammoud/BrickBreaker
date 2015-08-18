@@ -59,6 +59,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 		setFocusable(true);
 	}
 	
+	//start game
 	public void startGame(){
 		
 		//game
@@ -166,21 +167,21 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 	@Override
 	public void mouseClicked(MouseEvent event) {
 		
-//		Point mouseClick = event.getPoint();
-//	    int clickX = (int)mouseClick.getX();
-//	    int clickY = (int)mouseClick.getY();
-//	    
-//	    System.out.println(clickX + ", " + x);
-//	    
-//	    if (clickX < x){
-//	    	right = false;
-//	    }
-//	    
-//	    int xP = clickX - x;
-//	    int yP = y - clickY;
-//	    diffX = (int) (ballSpeed * (xP/Math.sqrt(Math.pow(xP, 2) + Math.pow(yP, 2))));
-//	    diffY = (int) (ballSpeed * (yP/Math.sqrt(Math.pow(xP, 2) + Math.pow(yP, 2))));
-//	    
+		Point mouseClick = event.getPoint();
+	    int clickX = (int)mouseClick.getX();
+	    int clickY = (int)mouseClick.getY();
+	    
+//	    System.out.println(clickX + ", " + ballX);
+	    
+	    if (clickX < ballX){
+	    	right = false;
+	    }
+	    
+	    int xP = clickX - ballX;
+	    int yP = ballY - clickY;
+	    diffX = Math.abs((int) (ballSpeed * (xP/Math.sqrt(Math.pow(xP, 2) + Math.pow(yP, 2)))));
+	    diffY = Math.abs((int) (ballSpeed * (yP/Math.sqrt(Math.pow(xP, 2) + Math.pow(yP, 2)))));
+	    
 //	    System.out.println(diffX + ", " + diffY);
 //	    System.out.println(clickX + ", " + clickY);
 	    
@@ -248,33 +249,33 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 		//get new ball position
 		if (!stickToPaddle)
 		{
-//			if (right){
-//				ballX += diffX;
-//			}
-//			else if (!right){
-//				ballX -= diffX;
-//			}
-//			
-//			if (up){
-//				ballY -= diffY;
-//			}
-//			else if (!up){
-//				ballY += diffY;
-//			}
-			
 			if (right){
-				ballX += ballSpeed;
+				ballX += diffX;
 			}
 			else if (!right){
-				ballX -= ballSpeed;
+				ballX -= diffX;
 			}
 			
 			if (up){
-				ballY -= ballSpeed;
+				ballY -= diffY;
 			}
 			else if (!up){
-				ballY += ballSpeed;
+				ballY += diffY;
 			}
+			
+//			if (right){
+//				ballX += ballSpeed;
+//			}
+//			else if (!right){
+//				ballX -= ballSpeed;
+//			}
+//			
+//			if (up){
+//				ballY -= ballSpeed;
+//			}
+//			else if (!up){
+//				ballY += ballSpeed;
+//			}
 		}
 		else
 			ballX = paddleX + paddleWidth / 2 - ballRadius;
