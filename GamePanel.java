@@ -1,6 +1,6 @@
 import java.awt.Color;
 import java.awt.Graphics;
-//import java.awt.Point;
+import java.awt.Point;
 import java.awt.event.*;
 import java.util.ArrayList;
 import javax.swing.*;
@@ -33,8 +33,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 	private int ballRadius;
 	private int ballDiameter;
 	private int ballSpeed;
-	private int x, y;
-	//private int diffX, diffY;
+	private int ballX, ballY;
+	private int diffX, diffY;
 	private boolean right;
 	private boolean up;
 	private boolean stickToPaddle;
@@ -43,12 +43,14 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 	private ArrayList<Brick> bricks;
 	private int brickHeight;
 	private int brickWidth;
+	private int brickX, brickY;
 	
 	//GamePanel constructor
 	public GamePanel(JLabel sl)
 	{
 		this.setBackground(Color.WHITE);
 		scoreLabel = sl;
+		score = 0;
 		
 		//add listeners
 		addKeyListener(this);
@@ -69,15 +71,15 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 		
 		//paddle
 		paddleX = 0;
-		paddleY = panelHeight - 80;
+		paddleY = panelHeight - 50;
 		paddleWidth = 100;
 		paddleHeight = 20;
 		paddle = new Paddle(paddleX, paddleY, paddleWidth, paddleHeight);
 		paddleSpeed = 10;
 		
 		//bricks
-		x = 0;
-		y = 40;
+		brickX = 0;
+		brickY = 40;
 		brickWidth = 40;
 		brickHeight = 20;
 		bricks = new ArrayList<Brick>();
@@ -89,26 +91,25 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 		{
 			for (int j = 0; j < bricksCount; j++)
 			{
-				bricks.add(new Brick(x, y, brickWidth, brickHeight));
-				x += (brickWidth + 1);
+				bricks.add(new Brick(brickX, brickY, brickWidth, brickHeight));
+				brickX += (brickWidth + 1);
 			}
-			x = 0;
-			y += (brickHeight + 1);
+			brickX = 0;
+			brickY += (brickHeight + 1);
 		}
 		
 		//ball
-		x = 0;
-		y = panelHeight - 100;
-		ballDiameter = 20;
-		ball = new Ball(x, y, ballDiameter);
 		ballSpeed = 10;
-		ballRadius = ballDiameter/2;
-		score = 0;
+		ballDiameter = 20;
+		ballRadius = ballDiameter / 2;
+		ballX = paddleX + paddleWidth / 2 - ballRadius;
+		ballY = paddleY - ballDiameter;
+		ball = new Ball(ballX, ballY, ballDiameter);
 		stickToPaddle = true;
 		right = true;
 		up = true;
-//		diffX = 0;
-//		diffY = 0;
+		diffX = 0;
+		diffY = 0;
 		
 		repaint();
 		timer.start();
@@ -165,19 +166,24 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 	@Override
 	public void mouseClicked(MouseEvent event) {
 		
-//			Point mouseClick;
-//			
-//			mouseClick = event.getPoint();
-//		    int clickX = (int)mouseClick.getX();
-//		    int clickY = (int)mouseClick.getY();
-//		    
-//		    int xP = clickX - x;
-//		    int yP = y - clickY;
-//		    diffX = (int) (ballSpeed * (xP/Math.sqrt(Math.pow(xP, 2) + Math.pow(yP, 2))));
-//		    diffY = (int) (ballSpeed * (yP/Math.sqrt(Math.pow(xP, 2) + Math.pow(yP, 2))));
-//		    
-//		    System.out.println(diffX + ", " + diffY);
-//		    System.out.println(clickX + ", " + clickY);
+//		Point mouseClick = event.getPoint();
+//	    int clickX = (int)mouseClick.getX();
+//	    int clickY = (int)mouseClick.getY();
+//	    
+//	    System.out.println(clickX + ", " + x);
+//	    
+//	    if (clickX < x){
+//	    	right = false;
+//	    }
+//	    
+//	    int xP = clickX - x;
+//	    int yP = y - clickY;
+//	    diffX = (int) (ballSpeed * (xP/Math.sqrt(Math.pow(xP, 2) + Math.pow(yP, 2))));
+//	    diffY = (int) (ballSpeed * (yP/Math.sqrt(Math.pow(xP, 2) + Math.pow(yP, 2))));
+//	    
+//	    System.out.println(diffX + ", " + diffY);
+//	    System.out.println(clickX + ", " + clickY);
+	    
 	    stickToPaddle = false;
 	}
 	
@@ -196,12 +202,14 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 	 ******************************************************************************/
 	@Override
 	public void actionPerformed (ActionEvent event) {
+		
+		//move the paddle
 		if (pressed){
 			switch(keyCode)
 			{
 				case KeyEvent.VK_D:
 				case KeyEvent.VK_RIGHT:
-					if (paddleX < (panelWidth - paddleWidth) && pressed)
+					if (paddleX < (panelWidth - paddleWidth))
 					{
 						paddleX += paddleSpeed;
 						paddle.setPos(paddleX, paddleY);
@@ -210,7 +218,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 				
 				case KeyEvent.VK_A:
 				case KeyEvent.VK_LEFT:
-					if (paddleX > 0 && pressed)
+					if (paddleX > 0)
 					{
 						paddleX -= paddleSpeed;
 						paddle.setPos(paddleX, paddleY);
@@ -219,23 +227,66 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 				default:
 			}
 		}
-			
-			
-//		Random gen = new Random();
-//		int r = gen.nextInt(255);
-//		int g = gen.nextInt(255);
-//		int b = gen.nextInt(255);
-//		
-//		gamePanel.setBackground((new Color(r, g, b)));
 		
-		//get ball poistion
-		int ballX = (int) ball.getPos().getX();
-		int ballY = (int) ball.getPos().getY();
+		//border collision logic
+		if (ballX >= (panelWidth - ballDiameter)){
+			right = false;
+		}
+		else if (ballX <= 0){
+			right = true;
+		}
+		
+		if (ballY <= 0){
+			up = false;
+		}
+		else if (ballY > (panelHeight - ballDiameter)){
+			up = true;
+			timer.stop();
+			JOptionPane.showMessageDialog(null, "You lose!");
+		}
+		
+		//get new ball position
+		if (!stickToPaddle)
+		{
+//			if (right){
+//				ballX += diffX;
+//			}
+//			else if (!right){
+//				ballX -= diffX;
+//			}
+//			
+//			if (up){
+//				ballY -= diffY;
+//			}
+//			else if (!up){
+//				ballY += diffY;
+//			}
+			
+			if (right){
+				ballX += ballSpeed;
+			}
+			else if (!right){
+				ballX -= ballSpeed;
+			}
+			
+			if (up){
+				ballY -= ballSpeed;
+			}
+			else if (!up){
+				ballY += ballSpeed;
+			}
+		}
+		else
+			ballX = paddleX + paddleWidth / 2 - ballRadius;
+		
+		//update ball position
+		ball.setPos(ballX, ballY);
+		
+		//ball and paddle collision logic
 		int ballTouchPoint = ballX + ballRadius;
 		int ballSideTouchPoint = ballY + ballRadius;
 		//double ballIncrement = 1.25;
 		
-		//ball and paddle collision logic
 		if ((ballY + ballDiameter) == paddleY)
 		{
 			if ((ballTouchPoint >= paddleX) && (ballTouchPoint <= (paddleX + paddleWidth)))
@@ -245,65 +296,18 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 			}
 		}
 		
-		//brick collision logic
-		//bottom of brick
-		for (int i = 0; i < bricks.size(); i++)
+		//ball and sides of paddle
+		if ((ballSideTouchPoint) > paddleY && (ballSideTouchPoint) < (paddleY + paddleHeight))
 		{
-			int brickX = (int) bricks.get(i).getPos().getX();
-			int brickY = (int) bricks.get(i).getPos().getY();
-			if (ballY <= brickY + brickHeight){
-				if (ballTouchPoint >= brickX && ballTouchPoint <= brickX + brickWidth){
-					up = false;
-					bricks.remove(i);
-					score++;
-					scoreLabel.setText("Score: " + score);
-				}
-			}
-		}
-		
-		//border collision logic
-		if (x >= (panelWidth - ballDiameter)){
-			right = false;
-		}
-		
-		else if (x <= 0){
-			right = true;
-		}
-		
-		//get new ball position
-		if (!stickToPaddle)
-		{
-			if (right){
-				//x += diffX;
-				x += ballSpeed;
-			}
-			else if (!right){
-				//x -= diffX;
-				x -= ballSpeed;
+			if ((ballX + ballDiameter >= paddleX) && (ballX + ballDiameter <= paddleX + paddleWidth))
+			{
+				right = false;
 			}
 			
-			if (up){
-				//y -= diffY;
-				y -= ballSpeed;
+			else if ((ballX <= paddleX + paddleWidth) && (ballX + ballDiameter >= paddleX + paddleWidth))
+			{
+				right = true;
 			}
-			else if (!up){
-				//y += diffY;
-				y += ballSpeed;
-			}
-		}
-		else
-			x = paddleX + paddleWidth / 2 - ballRadius;
-		
-		//update ball position
-		ball.setPos(x, y);
-		
-		if (y <= 0){
-			up = false;
-		}
-		else if (y > (panelHeight - ballDiameter)){
-			up = true;
-			timer.stop();
-			JOptionPane.showMessageDialog(null, "You lose!");
 		}
 		
 		//corner of paddle
@@ -322,25 +326,29 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 			}
 		}
 		
-		//ball and sides of paddle
-		if ((ballSideTouchPoint) > paddleY && (ballSideTouchPoint) < (paddleY + paddleHeight))
+		//brick collision logic
+		//bottom of brick
+		for (int i = 0; i < bricks.size(); i++)
 		{
-			if ((ballX + ballDiameter >= paddleX) && (ballX + ballDiameter <= paddleX + paddleWidth))
-			{
-				right = false;
-			}
-			
-			else if ((ballX <= paddleX + paddleWidth) && (ballX + ballDiameter >= paddleX + paddleWidth))
-			{
-				right = true;
+			brickX = (int) bricks.get(i).getPos().getX();
+			brickY = (int) bricks.get(i).getPos().getY();
+			if (ballY <= brickY + brickHeight){
+				if (ballTouchPoint >= brickX && ballTouchPoint <= brickX + brickWidth){
+					up = false;
+					bricks.remove(i);
+					score++;
+					scoreLabel.setText("Score: " + score);
+				}
 			}
 		}
 		
-		repaint();
-		
+		//Check win condition
 		if (bricks.size() == 0){
 			timer.stop();
 			JOptionPane.showMessageDialog(null, "You WIN!");
 		}
+		
+		//paint new information
+		repaint();
 	}
 }

@@ -1,9 +1,8 @@
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 
 
-public class GameObject {
+public abstract class GameObject {
 	
 	protected int x;
 	protected int y;
@@ -44,15 +43,5 @@ public class GameObject {
 		this.y = y;
 	}
 	
-	public void paint(Graphics page)
-	{
-//		Random gen = new Random();
-//		int r = gen.nextInt(255);
-//		int g = gen.nextInt(255);
-//		int b = gen.nextInt(255);
-//		
-//		page.setColor(new Color(r, g, b));
-		page.setColor(Color.DARK_GRAY);
-		page.fillOval(x, y, width, height);
-	}
+	public abstract void paint(Graphics page);
 }
