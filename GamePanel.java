@@ -85,7 +85,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 		brickHeight = 20;
 		bricks = new ArrayList<Brick>();
 		int bricksCount = panelWidth / brickWidth;
-		int rows = 3;
+		int rows = 1;
 		
 		//create bricks
 		for (int i = 0; i < rows; i++)
@@ -203,6 +203,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 	 ******************************************************************************/
 	@Override
 	public void actionPerformed (ActionEvent event) {
+		//long start = System.nanoTime();
 		
 		//move the paddle
 		if (pressed){
@@ -284,75 +285,86 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 		ball.setPos(ballX, ballY);
 		
 		//ball and paddle collision logic
-		int ballTouchPoint = ballX + ballRadius;
-		int ballSideTouchPoint = ballY + ballRadius;
+		//int ballTouchPoint = ballX + ballRadius;
+		//int ballSideTouchPoint = ballY + ballRadius;
 		//double ballIncrement = 1.25;
 		
-		if ((ballY + ballDiameter) == paddleY)
-		{
-			if ((ballTouchPoint >= paddleX) && (ballTouchPoint <= (paddleX + paddleWidth)))
-			{
-				up = true;
-				//ballSpeed ++;
-			}
+		Point overlapP = ball.overlapPoint(paddle);
+		if (overlapP != null && !stickToPaddle){
+			System.out.println("Overlap with paddle at " + overlapP.x + ", " + overlapP.y);
+			ball.bounce(paddle, overlapP);
+			up = true;
 		}
+		
+//		if ((ballY + ballDiameter) == paddleY)
+//		{
+//			if ((ballTouchPoint >= paddleX) && (ballTouchPoint <= (paddleX + paddleWidth)))
+//			{
+//				up = true;
+//				//ballSpeed ++;
+//			}
+//		}
 		
 		//ball and sides of paddle
-		if ((ballSideTouchPoint) > paddleY && (ballSideTouchPoint) < (paddleY + paddleHeight))
-		{
-			if ((ballX + ballDiameter >= paddleX) && (ballX + ballDiameter <= paddleX + paddleWidth))
-			{
-				right = false;
-			}
-			
-			else if ((ballX <= paddleX + paddleWidth) && (ballX + ballDiameter >= paddleX + paddleWidth))
-			{
-				right = true;
-			}
-		}
+//		if ((ballSideTouchPoint) > paddleY && (ballSideTouchPoint) < (paddleY + paddleHeight))
+//		{
+//			if ((ballX + ballDiameter >= paddleX) && (ballX + ballDiameter <= paddleX + paddleWidth))
+//			{
+//				right = false;
+//			}
+//			
+//			else if ((ballX <= paddleX + paddleWidth) && (ballX + ballDiameter >= paddleX + paddleWidth))
+//			{
+//				right = true;
+//			}
+//		}
 		
-		//corner of paddle
-		if((ballY + ballDiameter) == paddleY)
-		{
-			if((ballX + ballDiameter) == paddleX)
-			{
-				up = true;
-				right = false;
-			}
-			
-			if((ballX) == (paddleX + paddleWidth))
-			{
-				up = true;
-				right = true;
-			}
-		}
+//		//corner of paddle
+//		if((ballY + ballDiameter) == paddleY)
+//		{
+//			if((ballX + ballDiameter) == paddleX)
+//			{
+//				up = true;
+//				right = false;
+//			}
+//			
+//			if((ballX) == (paddleX + paddleWidth))
+//			{
+//				up = true;
+//				right = true;
+//			}
+//		}
 		
-		boolean overlapB = false;
-		//test overlap
+		//overlap with bricks
 		for (int i = 0; i < bricks.size(); i++)
 		{
-			overlapB = ball.overlap(bricks.get(i));
-			if (overlapB){
-				System.out.println("Overlap with brick");
+			Point contactPoint = ball.overlapPoint(bricks.get(i));
+			if (contactPoint != null){
+				System.out.println("Overlap with brick at " + contactPoint.x + ", " + contactPoint.y);
+				ball.bounce(bricks.get(i), contactPoint);
+				up = false;
+				bricks.remove(i);
+				score++;
+				scoreLabel.setText("Score: " + score);
 				break;
 			}
 		}
 		
 		//brick collision logic
 		//bottom of brick
-		for (int i = 0; i < bricks.size(); i++)
-		{
-			brickX = (int) bricks.get(i).getPos().getX();
-			brickY = (int) bricks.get(i).getPos().getY();
-			if (ballY <= brickY + brickHeight){
-				if (ballTouchPoint >= brickX && ballTouchPoint <= brickX + brickWidth){
-					up = false;
-					bricks.remove(i);
-					score++;
-					scoreLabel.setText("Score: " + score);
-				}
-			}
-		}
+//		for (int i = 0; i < bricks.size(); i++)
+//		{
+//			brickX = (int) bricks.get(i).getPos().x;
+//			brickY = (int) bricks.get(i).getPos().y;
+//			if (ballY <= brickY + brickHeight){
+//				if (ballTouchPoint >= brickX && ballTouchPoint <= brickX + brickWidth){
+//					up = false;
+//					bricks.remove(i);
+//					score++;
+//					scoreLabel.setText("Score: " + score);
+//				}
+//			}
+//		}
 		
 		//Check win condition
 		if (bricks.size() == 0){
@@ -360,11 +372,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 			JOptionPane.showMessageDialog(null, "You WIN!");
 		}
 		
-		boolean overlapP = ball.overlap(paddle);
-		if (overlapP && !stickToPaddle)
-			System.out.println("Overlap with paddle");
-		
 		//paint new information
 		repaint();
+		
+		//System.out.println(System.nanoTime() - start);
 	}
 }
