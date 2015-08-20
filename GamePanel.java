@@ -17,7 +17,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 	private boolean pressed;
 	private int keyCode;
 	private Timer timer;
-	private final int DELAY = 16;
+	private final int DELAY = 100;
 	private int score;
 	
 	//paddle variables
@@ -327,6 +327,17 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 			}
 		}
 		
+		boolean overlapB = false;
+		//test overlap
+		for (int i = 0; i < bricks.size(); i++)
+		{
+			overlapB = ball.overlap(bricks.get(i));
+			if (overlapB){
+				System.out.println("Overlap with brick");
+				break;
+			}
+		}
+		
 		//brick collision logic
 		//bottom of brick
 		for (int i = 0; i < bricks.size(); i++)
@@ -348,6 +359,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 			timer.stop();
 			JOptionPane.showMessageDialog(null, "You WIN!");
 		}
+		
+		boolean overlapP = ball.overlap(paddle);
+		if (overlapP && !stickToPaddle)
+			System.out.println("Overlap with paddle");
 		
 		//paint new information
 		repaint();
