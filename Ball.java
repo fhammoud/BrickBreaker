@@ -31,7 +31,14 @@ public class Ball extends GameObject{
 		
 		if (corner == null)	//ball hit a side
 		{
-			
+			if(contactPoint.y == other.getPos().y ||
+				contactPoint.y == other.getPos().y + other.getHeight()){
+				diffY *= -1;
+			}
+			else if(contactPoint.x == other.getPos().x + other.getWidth() ||
+					contactPoint.x == other.getPos().x){
+				diffX *= -1;
+			}
 		}
 		else	//ball hit a corner
 		{
@@ -81,6 +88,11 @@ public class Ball extends GameObject{
 	
 	private double clamp(double value, double min, double max){
 		return Math.max(min, Math.min(max, value));
+	}
+	
+	public void move(){
+		x += diffX;
+		y -= diffY;
 	}
 	
 	public void paint(Graphics page)
